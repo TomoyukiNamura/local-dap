@@ -1,0 +1,5 @@
+in:
+  type: file
+  path_prefix: "../../../input/test/ld-input_"
+out:
+  type: stdout

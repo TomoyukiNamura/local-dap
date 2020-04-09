@@ -1,0 +1,121 @@
+version: '2'
+
+
+x-redash-service: &redash-service
+  image: redash/redash:8.0.0.b32245
+  depends_on:
+    - postgres
+    - redis
+  env_file: redash.env
+  restart: always
+
+
+services:
+
+  server:
+    <<: *redash-service
+    command: server
+    ports:
+      - "5000:5000"
+    environment:
+      REDASH_WEB_WORKERS: 4
+    networks:
+      app_net:
+        ipv4_address: 172.16.238.2
+
+  scheduler:
+    <<: *redash-service
+    command: scheduler
+    environment:
+      QUEUES: "celery"
+      WORKERS_COUNT: 1
+    networks:
+      app_net:
+        ipv4_address: 172.16.238.3
+
+  scheduled_worker:
+    <<: *redash-service
+    command: worker
+    environment:
+      QUEUES: "scheduled_queries,schemas"
+      WORKERS_COUNT: 1
+    networks:
+      app_net:
+        ipv4_address: 172.16.238.4
+
+  adhoc_worker:
+    <<: *redash-service
+    command: worker
+    environment:
+      QUEUES: "queries"
+      WORKERS_COUNT: 2
+    networks:
+      app_net:
+        ipv4_address: 172.16.238.5
+
+  redis:
+    image: redis:5.0-alpine
+    restart: always
+    networks:
+      app_net:
+        ipv4_address: 172.16.238.6
+
+  postgres:
+    image: postgres:9.5-alpine
+    env_file: redash.env
+    restart: always
+    networks:
+      app_net:
+        ipv4_address: 172.16.238.7
+
+  nginx:
+    image: redash/nginx:latest
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+    links:
+      - server:redash
+    restart: always
+    networks:
+      app_net:
+        ipv4_address: 172.16.238.8
+
+  mysql:
+    build: ./db/mysql
+    restart: always
+    volumes:
+      - ./db/mysql/db:/var/lib/mysql
+      - ./db/mysql:/home
+    environment:
+      MYSQL_DATABASE: test
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test
+      #MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      TZ: Japan
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
+    networks:
+      app_net:
+        ipv4_address: 172.16.238.9
+
+  etl:
+    build: ./etl
+    volumes:
+      - ./etl:/home
+      - ./input:/input
+    restart: always
+    tty: true
+    networks:
+      app_net:
+        ipv4_address: 172.16.238.10
+
+
+networks:
+  app_net:
+    driver: bridge
+    ipam:
+     driver: default
+     config:
+       - subnet: 172.16.238.0/24
+         gateway: 172.16.238.1
