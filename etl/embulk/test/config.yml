@@ -1,0 +1,26 @@
+in:
+  type: file
+  path_prefix: ../../../input/test/ld-input_
+  parser:
+    charset: UTF-8
+    newline: LF
+    type: csv
+    delimiter: ','
+    quote: '"'
+    escape: '\'
+    trim_if_not_quoted: false
+    skip_header_lines: 1
+    allow_extra_columns: false
+    allow_optional_columns: false
+    columns:
+    - {name: id, type: long}
+    - {name: name, type: string}
+out:
+  type: mysql
+  user: test
+  password: test
+  database: test
+  host: 172.16.238.9
+  table: XIII
+  select: "*"
+  mode: replace

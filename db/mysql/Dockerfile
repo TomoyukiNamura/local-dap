@@ -1,8 +1,8 @@
 FROM mysql:5.7
 
 # install linux command & cli-editor
-RUN apt update
-RUN apt install -y git locales-all
+RUN apt-get update
+RUN apt-get install -y git locales-all
 RUN git clone https://github.com/TomoyukiNamura/cli-editor.git /tmp/cli-editor
 WORKDIR /tmp/cli-editor
 RUN bash install.sh
