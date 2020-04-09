@@ -1,8 +1,10 @@
 FROM ubuntu:18.04
 
 # install linux command & java8 & cli-editor
-RUN apt update
-RUN apt install -y git curl openjdk-8-jdk
+RUN apt-get update
+RUN apt-get install -y git
+RUN apt install -y curl
+RUN apt install -y openjdk-8-jdk
 RUN git clone https://github.com/TomoyukiNamura/cli-editor.git /tmp/cli-editor
 WORKDIR /tmp/cli-editor
 RUN bash install.sh

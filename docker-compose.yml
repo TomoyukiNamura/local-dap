@@ -6,7 +6,7 @@ x-redash-service: &redash-service
   depends_on:
     - postgres
     - redis
-  env_file: redash.env
+  env_file: ./visualizer/redash/redash.env
   restart: always
 
 
@@ -62,7 +62,7 @@ services:
 
   postgres:
     image: postgres:9.5-alpine
-    env_file: redash.env
+    env_file: ./visualizer/redash/redash.env
     restart: always
     networks:
       app_net:
