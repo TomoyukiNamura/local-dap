@@ -1,6 +1,5 @@
 .DS_Store
-/data
-/mysql
+/db/mysql/db
 
 # Editor directories and files
 .idea
